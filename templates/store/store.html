@@ -9,8 +9,11 @@
 <!-- ========================= SECTION PAGETOP ========================= -->
 <section class="section-pagetop bg">
 <div class="container">
-	<h2 class="title-page">Our Store</h2>
-	
+	{% if 'search' in request.path %}
+		<h2>Search Results</h2>
+	{% else %}
+		<h2 class="title-page">Our Store</h2>
+	{% endif %}
 </div> <!-- container //  -->
 </section>
 <!-- ========================= SECTION INTRO END// ========================= -->
@@ -132,27 +135,36 @@
 </header><!-- sect-heading -->
 
 <div class="row">
-    {% for product in products %}
-	<div class="col-md-4">
-		<figure class="card card-product-grid">
-			<div class="img-wrap"> 
-				
-				<a href="{{ product.get_url }}"><img  src="{{product.images.url}}"></a>
-				
-			</div> <!-- img-wrap.// -->
-			<figcaption class="info-wrap">
-				<div class="fix-height">
-					<a href="{{ product.get_url }}" class="title">{{ product.product_name }}</a>
-					<div class="price-wrap mt-2">
-						<span class="price">${{ product.price }}</span>
-	
-					</div> <!-- price-wrap.// -->
-				</div>
-				<a href="{{ product.get_url }}" class="btn btn-block btn-primary"> VIEW PRODUCT </a>
-			</figcaption>
-		</figure>
-	</div> <!-- col.// -->
-    {% endfor %}
+	{% if products %}
+		{% for product in products %}
+		<div class="col-md-4">
+			<figure class="card card-product-grid">
+				<div class="img-wrap"> 
+					
+					<a href="{{ product.get_url }}"><img  src="{{product.images.url}}"></a>
+					
+				</div> <!-- img-wrap.// -->
+				<figcaption class="info-wrap">
+					<div class="fix-height">
+						<a href="{{ product.get_url }}" class="title">{{ product.product_name }}</a>
+						<div class="price-wrap mt-2">
+							<span class="price">${{ product.price }}</span>
+		
+						</div> <!-- price-wrap.// -->
+					</div>
+					<a href="{{ product.get_url }}" class="btn btn-block btn-primary"> VIEW PRODUCT </a>
+				</figcaption>
+			</figure>
+		</div> <!-- col.// -->
+		{% endfor %}
+	{% else %}
+		<div>
+			<div class="spinner-border" role="status">
+  				
+			</div>
+			<h3>Result Not Found</h3>
+		</div>
+	{% endif %}
 </div> <!-- row end.// -->
 
 
