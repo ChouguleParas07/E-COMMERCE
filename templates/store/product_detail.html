@@ -75,29 +75,177 @@
 <div class="row">
 			<div class="col-md-9">
 
+
+	<form action="{% url 'submit_review' single_product.id %}" method="POST">
+		{% csrf_token %}
+		<h5>give us your lookouts</h5>
+		{{ single_product.averageReview }}
+		<div>
+			<label class="rating-title">How would you rate this product?</label>
+
+			<div class="stars">
+			
+			<input type="radio" id="star5" name="rating" value="5">
+			<label for="star5" class="full" title="5 stars"></label>
+
+			<input type="radio" id="star4half" name="rating" value="4.5">
+			<label for="star4half" class="half" title="4.5 stars"></label>
+
+			<input type="radio" id="star4" name="rating" value="4">
+			<label for="star4" class="full" title="4 stars"></label>
+
+			<input type="radio" id="star3half" name="rating" value="3.5">
+			<label for="star3half" class="half" title="3.5 stars"></label>
+
+			<input type="radio" id="star3" name="rating" value="3">
+			<label for="star3" class="full" title="3 stars"></label>
+
+			<input type="radio" id="star2half" name="rating" value="2.5">
+			<label for="star2half" class="half" title="2.5 stars"></label>
+
+			<input type="radio" id="star2" name="rating" value="2">
+			<label for="star2" class="full" title="2 stars"></label>
+
+			<input type="radio" id="star1half" name="rating" value="1.5">
+			<label for="star1half" class="half" title="1.5 stars"></label>
+
+			<input type="radio" id="star1" name="rating" value="1">
+			<label for="star1" class="full" title="1 star"></label>
+
+			<input type="radio" id="starhalf" name="rating" value="0.5">
+			<label for="starhalf" class="half" title="0.5 stars"></label>
+
+			<style>
+				.rating-title {
+					font-size: 20px;
+					font-weight: 700;
+					margin-bottom: 10px;
+					color: #222;
+					display: inline-block;
+					}
+
+					.stars {
+					display: inline-flex;
+					direction: rtl;
+					unicode-bidi: bidi-override;
+					}
+
+					.stars input {
+					display: none;
+					}
+
+					.stars label {
+					width: 45px;
+					height: 45px;
+					cursor: pointer;
+					margin: 0 2px;
+					clip-path: polygon(
+						50% 0%,
+						63% 38%,
+						100% 38%,
+						69% 59%,
+						82% 100%,
+						50% 75%,
+						18% 100%,
+						31% 59%,
+						0% 38%,
+						37% 38%
+					);
+					background: linear-gradient(135deg, #d4af37, #f7e98e);
+					background-size: 200% 200%;
+					background-position: left;
+					transition: all 0.3s ease;
+					filter: grayscale(1) brightness(0.7);
+					transform: scale(1);
+					}
+
+					/* HALF STAR */
+					.stars label.half {
+					width: 23px;
+					overflow: hidden;
+					margin-right: -23px;
+					}
+
+					/* Hover Effect: glowing golden stars */
+					.stars label:hover,
+					.stars label:hover ~ label {
+					filter: grayscale(0) brightness(1.2);
+					background-position: right;
+					transform: scale(1.2);
+					box-shadow: 0px 0px 12px rgba(255, 215, 0, 0.8);
+					}
+
+					/* Selected Stars (after click) */
+					.stars input:checked ~ label {
+					filter: grayscale(0) brightness(1);
+					background-position: right;
+					box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.6);
+					}
+
+			</style>
+
+			</div>
+			<br>
+
+			REVIEW TITLE :
+			<input type="text" class="form-control" name="subject">
+			<br>
+			REVIEW :
+			<textarea name="review" rows="4" class="form-control"></textarea>
+			<br>
+			{% if user.is_authenticated %}
+				{% if orderproduct %}
+					<input type="submit" value="Submit Review"
+					class="btn btn-primary btn-lg px-4 rounded-pill shadow-sm"
+					style="transition: 0.3s;"
+					onmouseover="this.style.transform='scale(1.05)';"
+					onmouseout="this.style.transform='scale(1)';">
+				{% else %}
+					<p>you must purchase to review.</p>
+				{% endif %}
+			{% else %}
+			<p>you must login before submitting review. <span><a href="{% url 'login' %}">Login NOW</a></span></p>
+			{% endif %}
+
+		</div>
+		{% include 'include/alerts.html' %}
+	</form>
+	
 	<header class="section-heading">
 		<h3>Customer Reviews </h3>  
 		
+			
+		
 	</header>
 
-	<article class="box mb-3">
-		<div class="icontext w-100">
-			<img src="{% static './images/avatars/avatar1.jpg' %}" class="img-xs icon rounded-circle">
-			<div class="text">
-				<span class="date text-muted float-md-right">24.04.2020 </span>  
-				<h6 class="mb-1">Mike John </h6>
-				
-			</div>
-		</div> <!-- icontext.// -->
-		<div class="mt-3">
-			<p>
-				Dummy comment Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-				tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-				quis nostrud exercitation ullamco laboris nisi ut aliquip
-			</p>	
-		</div>
-	</article>
+	{% for review in reviews %}
+		<article class="box mb-3">
+			<div class="icontext w-100">
+				<img src="{% static './images/avatars/avatar1.jpg' %}" class="img-xs icon rounded-circle">
+				<div class="text">
+					<span class="date text-muted float-md-right">{{review.created_at}}</span>  
+					<h6 class="mb-1">{{ review.user.full_name }}</h6>
 
+					<div>
+						<span>
+							<i class="fa fa-star{% if review.rating == 0.5 %}-half-o{% elif review.rating < 1 %}-o {% endif%}" aria-hidden="true"></i>
+							<i class="fa fa-star{% if review.rating == 1.5 %}-half-o{% elif review.rating < 2 %}-o {% endif%}" aria-hidden="true"></i>
+							<i class="fa fa-star{% if review.rating == 2.5 %}-half-o{% elif review.rating < 3 %}-o {% endif%}" aria-hidden="true"></i>
+							<i class="fa fa-star{% if review.rating == 3.5 %}-half-o{% elif review.rating < 4 %}-o {% endif%}" aria-hidden="true"></i>
+							<i class="fa fa-star{% if review.rating == 4.5 %}-half-o{% elif review.rating < 5 %}-o {% endif%}" aria-hidden="true"></i>
+						</span>
+					</div>	
+				</div>
+				
+			</div> <!-- icontext.// -->
+			<div class="mt-3">
+				<h6>{{review.subject}}</h6>
+				<i>
+					{{review.review}}
+				</i>	
+			</div>
+		</article>
+	{% endfor %}
 	
 
 	</div> <!-- col.// -->

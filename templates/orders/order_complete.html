@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="section-content padding-y bg">
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="mb-3">Order Complete</h4>
+          <p class="text-success">Your payment was successful.</p>
+
+          <dl class="row">
+            <dt class="col-sm-4">Order Number</dt>
+            <dd class="col-sm-8">{{ order.order_number }}</dd>
+
+            <dt class="col-sm-4">Payment ID</dt>
+            <dd class="col-sm-8">{{ payment.payment_id }}</dd>
+
+            <dt class="col-sm-4">Amount Paid</dt>
+            <dd class="col-sm-8">₹{{ payment.amount_paid }}</dd>
+          </dl>
+
+          <h6 class="mt-4">Items</h6>
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Variations</th>
+                <th>Qty</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for op in ordered_products %}
+              <tr>
+                <td>{{ op.product.product_name }}</td>
+                <td>
+                  {% for v in op.variations.all %}
+                    <span class="badge badge-light">{{ v.variation_category|capfirst }}: {{ v.variation_value|capfirst }}</span>
+                  {% empty %}
+                    -
+                  {% endfor %}
+                </td>
+                <td>{{ op.quantity }}</td>
+                <td>₹{{ op.product_price }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <div class="mt-3">
+            <a href="{% url 'store' %}" class="btn btn-primary">Continue Shopping</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+{% endblock %}
+
+

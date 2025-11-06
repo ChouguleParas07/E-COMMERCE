@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container py-5 text-center">
+    <h2 class="text-danger">Payment Error</h2>
+    <p>{{ error }}</p>
+    <a href="{% url 'checkout' %}" class="btn btn-primary mt-3">Go Back</a>
+</div>
+
+{% endblock %}
