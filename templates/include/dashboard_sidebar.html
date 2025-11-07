@@ -4,7 +4,7 @@
             <a class="list-group-item list-group-item-action{% if '/accounts/' == request.path %} active{% endif %}" href="{% url 'dashboard' %}">My Orders</a>
 			<a class="list-group-item list-group-item-action{% if '/my_orders/' in request.path %} active{% endif %}" href="{% url 'my_orders' %}"> MY ORDERS </a>
 			<a class="list-group-item list-group-item-action{% if '/edit_profile/' in request.path %} active{% endif %}" href="{% url 'edit_profile' %}"> EDIT PROFILE </a>
-			<a class="list-group-item list-group-item-action" href="#"> CHANGE PASSWORD </a>
+			<a class="list-group-item list-group-item-action{% if '/changePassword/' in request.path %} active{% endif %}" href="{% url 'changePassword' %}"> CHANGE PASSWORD </a>
 		</ul>
 		<br>
 		<a class="btn btn-light btn-block" href="{% url 'logout' %}"> <i class="fa fa-power-off"></i> <span class="text">Log out</span> </a> 

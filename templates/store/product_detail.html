@@ -13,11 +13,27 @@
 			<div class="row no-gutters">
 				<aside class="col-md-6">
 					<article class="gallery-wrap">
-					<div class="img-big-wrap">
+					<div class="img-big-wrap mainImage">
 
 
-						<a href="#"><img src=" {{single_product.images.url}} "></a>
-						</div> <!-- img-big-wrap.// -->
+						<center><img src=" {{single_product.images.url}} "></center>
+					</div> <!-- img-big-wrap.// -->
+
+					<ul class="thumb" style="list-style: none; padding: 0; margin: 10px 0; display: flex; flex-wrap: wrap; gap: 10px;">
+						{% for i in product_gallery %}
+						<li style="display: inline-block;">
+							<a href="{{ i.image.url }}" target="mainImage" style="text-decoration: none;">
+								<img src="{{ i.image.url }}" alt="Product Image"
+									style="width: 70px; height: 70px; object-fit: cover; border: 2px solid #ddd; border-radius: 8px; padding: 2px; transition: 0.3s; cursor: pointer;"
+									onmouseover="this.style.border='2px solid #007bff'; this.style.transform='scale(1.05)'"
+									onmouseout="this.style.border='2px solid #ddd'; this.style.transform='scale(1)'">
+							</a>
+						</li>
+						{% endfor %}
+					</ul>
+
+
+
 			<form action="{% url 'add_cart' single_product.id %}" method="POST">
 				{% csrf_token %}
 				</article> <!-- gallery-wrap .end// -->

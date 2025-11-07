@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="section-content padding-y bg">
+<div class="container">
+  {% include 'include/alerts.html' %}
+  <div class="row">
+    {% include 'include/dashboard_sidebar.html' %}
+    <main class="col-md-9">
+      <article class="card">
+        <header class="card-header">
+          <strong class="d-inline-block mr-3">ORDER DETAILS</strong>
+        </header>
+        <div class="card-body">
+
+
+          <h4 class="mb-4">Order Details</h4>
+          
+          <dl class="row">
+            <dt class="col-sm-4">Order Number</dt>
+            <dd class="col-sm-8">{{ order.order_number }}</dd>
+
+            <dt class="col-sm-4">Order Date</dt>
+            <dd class="col-sm-8">{{ order.created_at|date:"F d, Y" }}</dd>
+
+            <dt class="col-sm-4">Order Status</dt>
+            <dd class="col-sm-8"><span class="badge badge-info">{{ order.status }}</span></dd>
+
+            {% if payment %}
+            <dt class="col-sm-4">Payment ID</dt>
+            <dd class="col-sm-8">{{ payment.payment_id }}</dd>
+
+            <dt class="col-sm-4">Payment Method</dt>
+            <dd class="col-sm-8">{{ payment.payment_method }}</dd>
+
+            <dt class="col-sm-4">Amount Paid</dt>
+            <dd class="col-sm-8">₹{{ payment.amount_paid }}</dd>
+            {% endif %}
+          </dl>
+
+          <hr>
+
+          <h6 class="mb-3">Billing Address</h6>
+          <p class="mb-1"><strong>{{ order.first_name }} {{ order.last_name }}</strong></p>
+          <p class="mb-1">{{ order.address_line_1 }}</p>
+          {% if order.address_line_2 %}
+          <p class="mb-1">{{ order.address_line_2 }}</p>
+          {% endif %}
+          <p class="mb-1">{{ order.city }}, {{ order.state }}, {{ order.country }}</p>
+          <p class="mb-1">Phone: {{ order.phone }}</p>
+          <p class="mb-3">Email: {{ order.email }}</p>
+
+          <hr>
+
+          <h6 class="mt-4">Order Items</h6>
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Variations</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for op in ordered_products %}
+              <tr>
+                <td>
+                  <img src="{{ op.product.images.url }}" alt="{{ op.product.product_name }}" width="50" height="50" class="mr-2">
+                  {{ op.product.product_name }}
+                </td>
+                <td>
+                  {% for v in op.variations.all %}
+                    <span class="badge badge-secondary">{{ v.variation_category|capfirst }}: {{ v.variation_value|capfirst }}</span>
+                  {% empty %}
+                    <span class="text-muted">-</span>
+                  {% endfor %}
+                </td>
+                <td>{{ op.quantity }}</td>
+                <td>₹{{ op.product_price }}</td>
+                <td>₹{{ op.subtotal|floatformat:2 }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center">No items found in this order.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="text-right"><strong>Subtotal:</strong></td>
+                <td><strong>₹{{ order.order_total }}</strong></td>
+              </tr>
+              <tr>
+                <td colspan="4" class="text-right"><strong>Tax:</strong></td>
+                <td><strong>₹{{ order.tax }}</strong></td>
+              </tr>
+              <tr class="table-primary">
+                <td colspan="4" class="text-right"><strong>Grand Total:</strong></td>
+                <td><strong>₹{{ order.order_total|add:order.tax|floatformat:2 }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div class="mt-4">
+            <a href="{% url 'my_orders' %}" class="btn btn-secondary">Back to Orders</a>
+            <a href="{% url 'store' %}" class="btn btn-primary ml-2">Continue Shopping</a>
+          </div>
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+</section>
+
+{% endblock %}
+
+

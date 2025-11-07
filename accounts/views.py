@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect
-from .forms import RegistrationForm
-from .models import Account
+from .forms import RegistrationForm, userForm, UserProfileForm
+from .models import Account, user_profile
+from orders.models import OrderProduct
+
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from orders.models import Order
+from django.shortcuts import get_object_or_404
 
 # for email verification
 from django.contrib.sites.shortcuts import get_current_site
@@ -155,8 +158,10 @@ def activate(request, uidb64, token):
 def dashboard(request):
     orders = Order.objects.order_by('-created_at').filter(user_id = request.user.id, is_ordered = True)
     orders_count  = orders.count()
+    userprofile = user_profile.objects.get(user_id = request.user.id)
     context = {
         'orders_count' : orders_count,
+        'userprofile' : userprofile,
     }
 
     return render(request, 'accounts/dashboard.html', context)
@@ -232,7 +237,7 @@ def resetPassword(request):
 
 
 
-
+@login_required(login_url='login')
 def my_orders(request):
     orders = Order.objects.filter(user_id = request.user.id, is_ordered = True).order_by('-created_at')
     context = {
@@ -241,6 +246,75 @@ def my_orders(request):
     return render(request, 'accounts/my_orders.html', context)
 
 
-
+@login_required(login_url='login')
 def edit_profile(request):
-    return render(request, 'accounts/edit_profile.html')
+    userprofile = get_object_or_404(user_profile, user = request.user)
+    if request.method == 'POST':
+        user_form = userForm(request.POST, instance=request.user)
+        profile_form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'your profile has been updated')
+            return redirect('edit_profile')
+
+    else:
+        user_form = userForm(instance=request.user)
+        profile_form = UserProfileForm(instance=userprofile)
+    context = {
+        'user_form' : user_form,
+        'profile_form' : profile_form,
+        'userprofile' : userprofile,
+    }
+
+    return render(request, 'accounts/edit_profile.html', context)
+
+
+@login_required(login_url='login')
+def changePassword(request):
+    if request.method == "POST":
+        current_password = request.POST['current_password']
+        new_password = request.POST['new_password']
+        confirm_password = request.POST['confirm_password']
+
+        user = Account.objects.get(username__exact=request.user.username)
+        if new_password == confirm_password:
+            success = user.check_password(current_password)
+            if success:
+                user.set_password(new_password)
+                user.save()
+                # auth.logout(request)
+                messages.success(request, 'Password Changed Successfully')
+                return redirect('changePassword')
+            else:
+                messages.error(request, 'please enter valid current password')
+                return redirect('changePassword')
+        else:
+            messages.error(request, 'password does not match')
+            return redirect('changePassword')
+
+    return render(request, 'accounts/changePassword.html')
+
+
+
+@login_required(login_url='login')
+def order_detail(request, order_id):
+    try:
+        # Get order by ID and ensure it belongs to the current user
+        order = Order.objects.get(id=order_id, user=request.user, is_ordered=True)
+        ordered_products = OrderProduct.objects.filter(order=order, ordered=True)
+        payment = order.payment if order.payment else None
+        
+        # Calculate subtotals for each product
+        for product in ordered_products:
+            product.subtotal = float(product.product_price) * int(product.quantity)
+    except Order.DoesNotExist:
+        messages.error(request, 'Order not found.')
+        return redirect('my_orders')
+
+    context = {
+        'ordered_products': ordered_products,
+        'order': order,
+        'payment': payment,
+    }
+    return render(request, 'accounts/order_detail.html', context)
